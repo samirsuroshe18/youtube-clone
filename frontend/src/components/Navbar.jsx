@@ -29,11 +29,11 @@ const Navbar = () => {
           }}
         >
           <div className="flex bg-zinc-900 items-center h-10 px-4 pr-0 rounded-3xl">
-            <div className="flex gap-5 items-center pr-5">
+            <div className="flex gap-5 items-center pr-5 text-white">
               <input
                 type="text"
                 placeholder="Search"
-                className="w-96 bg-zinc-900 focus:outline-none border-none text-gray-600"
+                className="w-96 bg-zinc-900 focus:outline-none border-none text-white"
                 
               />
             </div>
@@ -43,7 +43,7 @@ const Navbar = () => {
           </div>
         </form>
 
-        <div className="text-xl p-3 bg-zinc-900 rounded-full text-white">
+        <div className="text-xl p-2.5 bg-zinc-900 rounded-full text-white">
           <FaMicrophone />
         </div>
       </div>

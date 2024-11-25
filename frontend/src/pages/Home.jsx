@@ -1,7 +1,17 @@
-import React from "react";
+import React, { useEffect } from 'react'
+import Navbar from '../components/Navbar'
+import Sidebar from '../components/Sidebar'
 
-const Home = () => {
-  return <div></div>;
-};
 
-export default Home;
+
+export default function Home() {
+
+
+
+  return (
+    <>
+    <Navbar/>
+    <Sidebar/>
+    </>
+  )
+}
