@@ -12,7 +12,7 @@ const __dirname = dirname(__filename);
 const staticPath = path.join(__dirname, '../public');
 
 // this use for cross origin sharing 
-app.use(cors({ origin: process.env.CORS_ORIGIN }));
+app.use(cors({ origin: ["http://localhost:5173", process.env.CORS_ORIGIN], credentials: true }));
 // this middleware use for parsing the json data
 app.use(express.json());
 // this is used for parsing url data extended is used for nessted object

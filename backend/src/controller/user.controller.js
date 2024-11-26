@@ -38,25 +38,8 @@ const registerUser = asyncHandler(async (req, res) => {
         throw new ApiError(409, 'User with same email or username already exists');
     }
 
-    // Check if 'avatar' is present in req.files and it is an array with at least one element
-    if (!req.files?.avatar || !Array.isArray(req.files.avatar) || req.files.avatar.length === 0) {
-        throw new ApiError(400, 'Avatar file is required');
-    }
-
-    const avatarLocalPath = req.files.avatar[0].path;
-    const coverImgLocalPath = req.files.coverImage ? req.files.coverImage[0].path : null;
-
-    const avatar = await uploadOnCloudinary(avatarLocalPath);
-    const coverImage = await uploadOnCloudinary(coverImgLocalPath);
-
-    if (!avatar) {
-        throw new ApiError(400, "Avatar file upload failed");
-    }
-
     const user = await User.create({
         fullName,
-        avatar: avatar.url,
-        coverImage: coverImage?.url || "",
         email,
         password,
         userName
@@ -105,7 +88,7 @@ const loginUser = asyncHandler(async (req, res) => {
     //option object is created beacause we dont want to modified the cookie to front side
     const option = {
         httpOnly: true,
-        secure: true
+        secure: false
     }
 
     res.status(200).cookie('accessToken', accessToken, option).cookie('refreshToken', refreshToken, option)

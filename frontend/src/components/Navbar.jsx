@@ -5,13 +5,40 @@ import { FaMicrophone } from 'react-icons/fa';
 import { RiVideoAddLine } from 'react-icons/ri';
 import { BsBell } from 'react-icons/bs';
 import { FaRegUserCircle } from 'react-icons/fa';
+import { uploadFile } from '../api/userApi';
 
 import Sidebar from './Sidebar'; // Import the Sidebar component
 
 const Navbar = () => {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
+  const [selectedVideo, setSelectedVideo] = useState(null);
 
   const toggleSidebar = () => setSidebarOpen(!isSidebarOpen);
+
+  const handleVideoChange = (event) => {
+    setSelectedVideo(event.target.files[0]);
+  };
+
+  const handleUpload = async () => {
+    
+    if (!selectedVideo) {
+      alert("Please select a video first.");
+      return;
+    }
+
+    try {
+      const response = await uploadFile(selectedVideo, {});
+
+      if (response.ok) {
+        alert("Video uploaded successfully!");
+      } else {
+        alert("Failed to upload video.");
+      }
+    } catch (error) {
+      console.error("Error uploading video:", error);
+      alert("An error occurred while uploading the video.");
+    }
+  };
 
   return (
     <div className="flex justify-between items-center px-4 h-14 bg-black opacity-95 sticky top-0 z-50">
@@ -39,19 +66,23 @@ const Navbar = () => {
           <input
             type="text"
             placeholder="Search"
-            className="bg-transparent border-none text-white w-40 sm:w-64 px-4 focus:outline-none"
+            className="bg-transparent border-none text-white w-[300px] px-4 focus:outline-none"
           />
           <button className="p-2">
-            <AiOutlineSearch className="text-white" />
+            <AiOutlineSearch className="text-white text-2xl" />
           </button>
         </form>
-        <FaMicrophone className="text-white text-xl bg-zinc-600 rounded-full hidden sm:block" />
+        <FaMicrophone className="text-white text-4xl bg-zinc-900 rounded-3xl hidden p-2 sm:block" />
       </div>
 
-      <div className="flex items-center gap-4">
-        <RiVideoAddLine className="text-white text-xl" />
-        <BsBell className="text-white text-xl relative" />
-        <FaRegUserCircle className="text-white text-xl" />
+      <div className="flex items-center gap-6 mr-8">
+      <input type="file" accept="video/*" onChange={handleVideoChange} />
+      <button onClick={handleUpload}>
+        <RiVideoAddLine className="text-white text-2xl" />
+      </button>
+      
+        <BsBell className="text-white text-2xl relative" />
+        <FaRegUserCircle className="text-white text-3xl" />
       </div>
 
       {/* Sidebar Component */}
