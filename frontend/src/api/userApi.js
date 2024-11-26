@@ -1,24 +1,19 @@
 import axiosInstance from "./axiosConfig";
 
 // Overriding all properties in a POST request
-const registerUser = async () => {
+const registerUser = async (payload) => {
     try {
         const response = await axiosInstance.post(
             '/register', // Endpoint
             {
                 // Payload for the POST request
-                userName: "user",
-                email: 'user@example.com',
-                password: 'securePassword',
+                fullName: payload.name, 
+                userName: payload.userName,
+                email: payload.email,
+                password: payload.password
             },
             {
-                headers: {
-                    // Override headers
-                    'Authorization': 'Bearer OVERRIDDEN_TOKEN', // New token
-                    'X-Custom-Header': 'CustomValue',
-                },
-                withCredentials: true, // Enable credentials
-                timeout: 10000, // Increase timeout
+                withCredentials: true,
             }
         );
 
@@ -60,7 +55,6 @@ const loginUser = async (email, password, setLoading, setError) => {
         throw error; // Re-throw to propagate if needed
     }
 };
-
 
 // Upload file
 const uploadFile = async (file, metadata) => {
@@ -123,3 +117,9 @@ const uploadFile = async (file, metadata) => {
 
 //     throw error; // Re-throw if needed
 // }
+
+export {
+    loginUser,
+    registerUser,
+    uploadFile
+}

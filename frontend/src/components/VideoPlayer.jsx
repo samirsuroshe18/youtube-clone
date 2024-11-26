@@ -24,21 +24,7 @@ const VideoPlayer = () => {
           />
         </div>
   
-        {/* Overlay Buttons */}
-        <div className="absolute top-2 right-2 flex gap-2">
-          <button
-            onClick={handleShare}
-            className="bg-blue-600 text-white text-sm px-3 py-1 rounded-lg shadow hover:bg-blue-700"
-          >
-            Share
-          </button>
-          <button
-            onClick={handleWatchLater}
-            className="bg-gray-600 text-white text-sm px-3 py-1 rounded-lg shadow hover:bg-gray-700"
-          >
-            Watch Later
-          </button>
-        </div>
+        
   
         {/* Video Details */}
         <div className="mt-3 text-white">
