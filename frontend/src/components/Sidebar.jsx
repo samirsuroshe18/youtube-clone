@@ -1,23 +1,22 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   MdHomeFilled,
-  MdOutlineSlowMotionVideo,
+  MdVideoSettings,
   MdSubscriptions,
-  MdOutlineVideoLibrary,
   MdHistory,
   MdOutlineWatchLater,
 } from 'react-icons/md';
-
+import { SiYoutubeshorts } from 'react-icons/si';
 import { LuThumbsUp } from 'react-icons/lu';
 
-export default function Sidebar() {
+export default function Sidebar({ isOpen, toggleSidebar }) {
   const mainLinks = [
     {
       icon: <MdHomeFilled className="text-xl" />,
       name: 'Home',
     },
     {
-      icon: <MdOutlineSlowMotionVideo className="text-xl" />,
+      icon: <SiYoutubeshorts className="text-xl" />,
       name: 'Shorts',
     },
     {
@@ -28,8 +27,8 @@ export default function Sidebar() {
 
   const otherLinks = [
     {
-      icon: <MdOutlineVideoLibrary className="text-xl" />,
-      name: 'Library',
+      icon: <MdVideoSettings className="text-xl" />,
+      name: 'Your Videos',
     },
     {
       icon: <MdHistory className="text-xl" />,
@@ -41,43 +40,39 @@ export default function Sidebar() {
     },
     {
       icon: <LuThumbsUp className="text-xl" />,
-      name: 'Liked Video',
+      name: 'Liked Videos',
     },
   ];
 
   return (
-    <div className="w-2/12 h-screen fixed bg-[#000000] text-white pr-3 pb-8 overflow-y-auto sidebar">
-      {/* Main Links */}
-      <ul className="flex flex-col border-b-2 border-gray-700">
-        {mainLinks.map(({ icon, name }) => {
-          return (
-            <li
-              key={name}
-              className={`pl-6 py-3 hover:bg-zinc-700 ${
-                name === 'Home' ? 'bg-zinc-600' : ''
-              } rounded-xl`}
-            >
-              <a href="#" className="flex items-center gap-5">
-                {icon}
-                <span className="text-sm tracking-wider">{name}</span>
-              </a>
-            </li>
-          );
-        })}
+    <div
+      className={`fixed top-14 left-0 h-screen bg-[#000000] text-white overflow-y-auto transform ${
+        isOpen ? 'translate-x-0' : '-translate-x-full'
+      } transition-transform duration-300 z-40 w-64`}
+    >
+     
+      <ul className="flex flex-col border-b-2 border-gray-700 p-4">
+        {mainLinks.map(({ icon, name }) => (
+          <li
+            key={name}
+            className="pl-4 py-3 hover:bg-zinc-700 rounded-xl flex items-center gap-5"
+          >
+            {icon}
+            <span>{name}</span>
+          </li>
+        ))}
       </ul>
 
-      {/* Other Links */}
-      <ul className="flex flex-col border-b-2 border-gray-800">
-        {otherLinks.map(({ icon, name }) => {
-          return (
-            <li key={name} className="pl-6 py-3 hover:bg-zinc-600">
-              <a href="#" className="flex items-center gap-5">
-                {icon}
-                <span className="text-sm tracking-wider">{name}</span>
-              </a>
-            </li>
-          );
-        })}
+      <ul className="flex flex-col p-4">
+        {otherLinks.map(({ icon, name }) => (
+          <li
+            key={name}
+            className="pl-4 py-3 hover:bg-zinc-700 rounded-xl flex items-center gap-5"
+          >
+            {icon}
+            <span>{name}</span>
+          </li>
+        ))}
       </ul>
     </div>
   );
