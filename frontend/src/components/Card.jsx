@@ -1,12 +1,7 @@
-import React from 'react';
+import React from "react";
 
 const Card = () => {
-    console.log(import.meta.env.VITE_YOUTUBE_DATA_API)
-  return (
-    <div>
-        
-    </div>
-  )
-}
+  return <div></div>;
+};
 
-export default Card
+export default Card;

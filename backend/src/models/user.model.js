@@ -9,7 +9,6 @@ const userSchema = new Schema({
         trim: true,
         unique: true,
         lowercase: true,
-        index: true
     },
 
     email: {
@@ -29,19 +28,11 @@ const userSchema = new Schema({
 
     avatar: {
         type: String,  // cloudinary url
-        required: true
     },
 
     coverImage: {
         type: String  // cloudinary url
     },
-
-    watchHistory: [
-        {
-            type: Schema.Types.ObjectId,
-            ref: "Video"
-        }
-    ],
 
     password: {
         type: String,
@@ -50,7 +41,17 @@ const userSchema = new Schema({
 
     refreshToken: {
         type: String
-    }
+    },
+
+    isVerfied: {
+        type: Boolean,
+        default: false,
+    },
+
+    verifyToken: String,
+    verifyTokenExpiry: Date,
+    forgotPasswordToken: String,
+    forgotPasswordTokenExpiry: Date,
 
 }, { timestamps: true });
 

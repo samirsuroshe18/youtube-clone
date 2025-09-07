@@ -11,6 +11,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const staticPath = path.join(__dirname, '../public');
 
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, './views'));
+
 // this use for cross origin sharing 
 app.use(cors({ origin: ["http://localhost:5173", process.env.CORS_ORIGIN], credentials: true }));
 // this middleware use for parsing the json data
@@ -24,10 +27,14 @@ app.use(cookieParser());
 
 // routes import
 import userRouter from './routes/user.routes.js';
+import emailRouter from './routes/email.routes.js';
+import videoRouter from './routes/video.routes.js';
 
 
 //Routes declaration
 app.use("/api/v1/users", userRouter);
+app.use("/api/v1/email", emailRouter);
+app.use("/api/v1/video", videoRouter);
 
 // Custom error handeling
 app.use((err, _, res, next) => {

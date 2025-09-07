@@ -1,10 +1,11 @@
 import asyncHandler from '../utils/asynchandler.js';
-import ApiError from '../utils/ApiError.js';
+import ApiError from '../utils/apiError.js';
 import ApiResponse from '../utils/ApiResponse.js';
 import { User } from '../models/user.model.js';
 import { uploadOnCloudinary, deleteCloudinary } from '../utils/cloudinary.js';
-import jwt from 'jsonwebtoken'
+import jwt from 'jsonwebtoken';
 import mongoose from 'mongoose';
+import mailSender from '../utils/mailSender.js';
 
 const generateAccessAndRefreshToken = async (userId) => {
     try {
@@ -42,7 +43,7 @@ const registerUser = asyncHandler(async (req, res) => {
         fullName,
         email,
         password,
-        userName
+        userName,
     });
 
     const createdUser = await User.findById(user._id).select("-password -refreshToken");
@@ -51,21 +52,28 @@ const registerUser = asyncHandler(async (req, res) => {
         throw new ApiError(500, "Something went wrong");
     }
 
-    return res.status(200).json(
-        new ApiResponse(200, createdUser, "User registered successfully")
-    );
+    const mailResponse = await mailSender(email, createdUser._id, "VERIFY");
+
+    if (mailResponse) {
+        return res.status(200).json(
+            new ApiResponse(200, {}, "An email sent to your account please verify in 10 minutes")
+        );
+    }
+
+    throw new ApiError(500, "Something went wrong!! An email couldn't sent to your account");
 });
 
 
 const loginUser = asyncHandler(async (req, res) => {
-    const { email, userName, password } = req.body;
+    const { username_or_email, password, isRememberMe } = req.body;
+    const maxAge = isRememberMe ? Number(process.env.COOKIE_MAX_AGE) : null;
 
-    if (!userName && !email) {
+    if (!username_or_email) {
         throw new ApiError(400, "username or email is required")
     }
 
     const user = await User.findOne({
-        $or: [{ userName }, { email }]
+        $or: [{ userName: username_or_email }, { email: username_or_email }]
     });
 
     if (!user) {
@@ -81,20 +89,28 @@ const loginUser = asyncHandler(async (req, res) => {
         throw new ApiError(401, "Invalid user credential");
     }
 
+    if (!user?.isVerfied) {
+        const mailResponse = await mailSender(email, user._id, "VERIFY");
+
+        if (mailResponse) {
+            throw new ApiError(310, "Your email is not verified. An email sent to your account please verify in 10 minutes");
+        }
+    }
+
     const { accessToken, refreshToken } = await generateAccessAndRefreshToken(user._id);
 
     const loggedInUser = await User.findById(user._id).select("-password -refreshToken");
 
     //option object is created beacause we dont want to modified the cookie to front side
     const option = {
-        httpOnly: true,
-        secure: false
+        httpOnly: 'true' === process.env.HTTP_ONLY,
+        secure: 'true' === process.env.COOKIE_SECURE,
+        maxAge,
     }
 
-    res.status(200).cookie('accessToken', accessToken, option).cookie('refreshToken', refreshToken, option)
-        .json(
-            new ApiResponse(200, { loggedInUser, accessToken, refreshToken }, "User logged in sucessully")
-        )
+    return res.status(200).cookie('accessToken', accessToken, option).cookie('refreshToken', refreshToken, option).json(
+        new ApiResponse(200, { loggedInUser, accessToken, refreshToken }, "User logged in sucessully")
+    );
 });
 
 
@@ -102,12 +118,13 @@ const logoutUser = asyncHandler(async (req, res) => {
 
     await User.findByIdAndUpdate(req.user._id, { $unset: { refreshToken: 1 } }, { new: true });
 
-    const option = {
-        httpOnly: true,
-        secure: true
-    }
+    // while clearing httpOnly cookie option object is not mendatory but it is good practice that we should send option object with created fields
+    // const option = {
+    //     httpOnly: true,
+    //     secure: true
+    // }
 
-    return res.status(200).clearCookie("accessToken", option).clearCookie("refreshToken", option).json(
+    return res.status(200).clearCookie("accessToken").clearCookie("refreshToken").json(
         new ApiResponse(200, {}, "User logged out")
     )
 })
@@ -134,8 +151,9 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
         }
 
         const option = {
-            httpOnly: true,
-            secure: true
+            httpOnly: 'true' === process.env.HTTP_ONLY,
+            secure: 'true' === process.env.COOKIE_SECURE,
+            maxAge: Number(process.env.COOKIE_MAX_AGE),
         }
 
         const { accessToken, refreshToken } = await generateAccessAndRefreshToken(user._id);
@@ -147,6 +165,27 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
         throw new ApiError(401, "Something went wrong : Invalid refresh token");
     }
 })
+
+
+const forgotPassword = asyncHandler(async (req, res) => {
+    const { email } = req.body;
+
+    const user = await User.findOne({ email });
+
+    if (!user || !user?.isVerfied) {
+        throw new ApiError(404, "Invalid email or email is not verified");
+    }
+
+    const mailResponse = await mailSender(email, user._id, "RESET");
+
+    if (mailResponse) {
+        return res.status(200).json(
+            new ApiResponse(200, {}, "An email sent to your account please reset your password in 10 minutes")
+        );
+    }
+
+    throw new ApiError(500, "Something went wrong!! An email couldn't sent to your account");
+});
 
 
 const changeCurrentPassword = asyncHandler(async (req, res) => {
@@ -384,6 +423,7 @@ export {
     loginUser,
     logoutUser,
     refreshAccessToken,
+    forgotPassword,
     changeCurrentPassword,
     getCurrentUser,
     updateAccountDetails,

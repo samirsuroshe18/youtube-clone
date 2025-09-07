@@ -1,61 +1,3 @@
-import axiosInstance from "./axiosConfig";
-
-// Overriding all properties in a POST request
-const registerUser = async (payload) => {
-    try {
-        const response = await axiosInstance.post(
-            '/register', // Endpoint
-            {
-                // Payload for the POST request
-                fullName: payload.name, 
-                userName: payload.userName,
-                email: payload.email,
-                password: payload.password
-            },
-            {
-                withCredentials: true,
-            }
-        );
-
-        console.log('Response:', response.data);
-        return response.data;
-    } catch (error) {
-        console.error('Error:', error.response?.data || error.message);
-        throw error;
-    }
-};
-
-const loginUser = async (email, password, setLoading, setError) => {
-    try {
-        setLoading(true);
-        const response = await axiosInstance.post(
-            '/login', // Endpoint
-            {
-                // Payload for the POST request
-                email,
-                password,
-            },
-            {
-                headers: {
-                    'Authorization': 'Bearer OVERRIDDEN_TOKEN', // New token
-                },
-                withCredentials: true,
-            }
-        );
-
-        console.log('Response:', response.data);
-        return response.data; // Success response
-    } catch (error) {
-        setLoading(false);
-
-        // Set the error message from the response or a fallback
-        setError(error.response?.data?.message || error.message);
-
-        console.error('Error:', error.response?.data || error.message);
-        throw error; // Re-throw to propagate if needed
-    }
-};
-
 // Upload file
 const uploadFile = async (file, metadata) => {
     try {
@@ -83,20 +25,20 @@ const uploadFile = async (file, metadata) => {
 };
 
 // Example usage
-(async () => {
-    const file = new File(['content'], 'example.txt', { type: 'text/plain' }); // Example file
-    const metadata = {
-        title: 'My Example File',
-        description: 'This is a description for the example file.',
-    };
+// (async () => {
+//     const file = new File(['content'], 'example.txt', { type: 'text/plain' }); // Example file
+//     const metadata = {
+//         title: 'My Example File',
+//         description: 'This is a description for the example file.',
+//     };
 
-    try {
-        const result = await uploadFile(file, metadata);
-        console.log('Server Response:', result);
-    } catch (error) {
-        console.error('Error:', error.message);
-    }
-})();
+//     try {
+//         const result = await uploadFile(file, metadata);
+//         console.log('Server Response:', result);
+//     } catch (error) {
+//         console.error('Error:', error.message);
+//     }
+// })();
 
 
 
@@ -120,6 +62,5 @@ const uploadFile = async (file, metadata) => {
 
 export {
     loginUser,
-    registerUser,
     uploadFile
 }

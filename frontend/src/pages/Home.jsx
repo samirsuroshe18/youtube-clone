@@ -1,21 +1,31 @@
-import React, { useEffect } from 'react'
-import Navbar from '../components/Navbar'
-import Sidebar from '../components/Sidebar'
-import Card from '../components/Card'
-import VideoPlayer from '../components/VideoPlayer'
-import Preloader from '../components/Preloader'
-
+import Navbar from "../components/Navbar";
+import Sidebar from "../components/Sidebar";
+import VideoPlayer from "../components/VideoPlayer";
+import Preloader from "../components/Preloader";
+import useCurrentUser from "../hooks/useCurrentUser";
+import ErrorPage from "../components/ErrorPage";
+import { useNavigate } from "react-router-dom";
 
 export default function Home() {
+  const { data, error, loading } = useCurrentUser();
+  const navigate = useNavigate();
+  if (loading) {
+    return <Preloader />;
+  }
 
+  if (error) {
+    return <ErrorPage error={error} />;
+  }
 
-
-  return (
-    <>
-    
-    <Navbar/>
-    <Sidebar/>
-    <VideoPlayer/>
-    </>
-  )
+  if (data) {
+    return (
+      <>
+        <Navbar />
+        <Sidebar />
+        <VideoPlayer />
+      </>
+    );
+  } else {
+    navigate("/login");
+  }
 }
